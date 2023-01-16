@@ -20,139 +20,6 @@ rowSums<-function (x, na.rm = FALSE, dims = 1) {
   z
 }  
 
-
-
-#---------------------------------- simulation ----------------------------------
-# j=1000
-# O=(w1, w2, L0, A1, L1, C1, A2, L2, C2, Y)
-
-# datal <- function(seed, N, study_n)  {
-#   
-#   set.seed(seed)
-#   # Scenario 1: D is independent
-#   clusterN = N/study_n
-#   study_id = c(rep(1:clusterN, each=study_n))
-#   ind_id = c(1:N)
-#   
-#   # generate study-level covariate V
-#   s_bar = rnorm(clusterN, mean=0.5, sd=1)
-#   s = rep(s_bar, each=study_n)
-#   
-#   # generate 9000 individual covariates W
-#   w1<-rnorm(N, mean=0.5*s, sd=0.7)
-#   w2<-rbinom(N, 1, plogis(0.5+0.8*s))
-#   # w2<-rbinom(N, 1, 0.5)
-#   L0 = rnorm(N, mean=0.2+0.2*w1+0.3*w2, sd=0.7)
-#   A0 = C0 = rep(0, N)
-#   
-#   # t1 = rep(1, N)
-#   p_A1 = plogis(0.7*w1+0.8*w2+0.9*L0)
-#   A1 = rbinom(N, 1, p_A1)
-#   
-#   L1 = rnorm(N, mean=0.2*w1+0.3*w2+0.5*L0 + 0.5*A1, sd=1)
-#   p_C1 = plogis(-2.5+0.2*w1+0.4*w2+0.3*L1+0.2*A1)
-#   C1 = rbinom(N, 1,  p_C1)
-#   #A1
-#   p_A2 = plogis(0.5*w1+0.3*w2+0.7*L1)
-#   A20 = rbinom(N, 1, p_A2) 
-#   A2 = ifelse( A1==1, 1, A20) # itt: if A1=1, A2=1
-#   
-#   L20 = rnorm(N, mean=0.2*w1+0.3*w2+0.7*L1+0.4*A2, sd=0.8)
-#   
-#   p_C2 = plogis(-3+0.2*w1+0.4*w2+0.3*L20+0.4*A2)# ; mean(p_C2, na.rm = TRUE)
-#   C2 = ifelse( C1==0,  rbinom(N, 1, p_C2), NA)
-#   total_t = ifelse(C1 ==0, 2, 1)
-#   
-#   cumA = ifelse( C1==0, A1+A2, A1)
-#   
-#   err <- rnorm(N,0,1)
-#   Y = ifelse(C2==0, 0.2*s+0.6*w1+1*w2+0.4*L1+0.5*L20+0.3*cumA+0.2*cumA*w2+ err, NA) 
-#   
-#   A2 = ifelse( C1==0, A2, NA)
-#   L2 = ifelse( C1==0, L20, NA)
-#   
-#   datal = data.frame(ind_id, study_id, total_t, s, w1, w2, L0, A0, C0, A1, L1, C1, A2, cumA, L2, C2, Y)
-#   
-#   return(datal)
-# }
-# 
-# 
-# 
-# longData = function(data) {
-#   
-#   t = id = study_id = Y = s = w1 = w2 = L = L_minus = A = A_minus = A_pl = cumA = cumA_minus = cumA_pl = C = Y = NULL
-#   
-#   for (i in 1:dim(datl1)[1]) { 
-#     ind_t=0:datl1$total_t[i]; t = c(t, ind_t)
-#     id = c(id, rep(datl1$ind_id[i], length(ind_t)))
-#     study_id = c(study_id, rep(datl1$study_id[i], length(ind_t)))
-#     s = c(s, rep(datl1$s[i], length(ind_t)))
-#     w1 = c(w1, rep(datl1$w1[i], length(ind_t)))
-#     w2 = c(w2, rep(datl1$w2[i], length(ind_t)))
-#     
-#     if (length(ind_t)==2) {
-#       ll = c(datl1$L0[i], datl1$L1[i]) 
-#       llmin = c(datl1$L0[i], datl1$L0[i])
-#       aa = c(datl1$A0[i], datl1$A1[i])
-#       aamin = c(datl1$A0[i], datl1$A0[i])
-#       aapl = c(datl1$A1[i], datl1$A1[i])
-#       cc = c(datl1$C0[i], datl1$C1[i])
-#       cuma = c(0, ifelse(datl1$A1[i]==1, 1, 0))
-#       cumamin = c(0, 0)
-#       cumapl = c(ifelse(datl1$A1[i]==1, 1, 0), ifelse(datl1$A1[i]==1, 1, 0))
-#       y = c(NA, NA)
-#       
-#     } else {
-#       ll = c(datl1$L0[i], datl1$L1[i], datl1$L2[i])
-#       llmin = c(datl1$L0[i], datl1$L0[i], datl1$L1[i])
-#       aa = c(datl1$A0[i], datl1$A1[i], datl1$A2[i])
-#       aamin = c(datl1$A0[i], datl1$A0[i], datl1$A1[i])
-#       aapl = c(datl1$A1[i], datl1$A2[i], datl1$A2[i])
-#       cc = c(datl1$C0[i], datl1$C1[i], datl1$C2[i])
-#       if (sum(aa) ==1) {cuma = c(0, 0, 1); cumapl = c(0,1,1)
-#       } else if (sum(aa) ==0) {cuma =cumapl =  c(0, 0, 0)
-#       } else {cuma = c(0, 1, 2); cumapl = c(1,2,2) }
-#       cumamin = c(0, 0, ifelse(datl1$A1[i]==1, 1, 0))
-#       y = c(NA, NA, datl1$Y[i])
-#     }
-#     L = c(L, ll)
-#     L_minus = c(L_minus, llmin)
-#     A = c(A, aa)
-#     A_minus = c(A_minus, aamin)
-#     A_pl = c(A_pl, aapl)
-#     C = c(C, cc)
-#     cumA = c(cumA, cuma)
-#     cumA_minus = c(cumA_minus, cumamin)
-#     cumA_pl = c(cumA_pl, cumapl)
-#     Y= c(Y, y)
-#   }
-#   
-#   long_dat = data.frame(id, study_id, t, s, w1, w2, L, L_minus, A, A_minus, A_pl, cumA, cumA_minus, cumA_pl, C, Y)
-#   
-#   
-#   return(long_dat)
-#   
-# }
-
-# #-------  long format data ------------------
-source(file = "./test/sim_data.R") 
-
-datl1 = datal(seed=1234, N=5000, study_n=100, study = "itt")
-head(datl1)
-View(datl1)
-
-long_dat = longData(data = datl1, study = "itt")
-head(long_dat)
-summary(long_dat)
-
-#------------------------ regimes--------------------------
-a_sim2 = matrix(c(1,1,0,1,0,0), nrow = 3, byrow = TRUE)
-#        [,1] [,2]
-# [1,]    1    1
-# [2,]    0    1
-# [3,]    0    0
-
-
 #---------------------- estimate pA and pC-----------------------
 pA = function(r, long_dat) {
   p_A = NULL
@@ -166,25 +33,22 @@ pA = function(r, long_dat) {
   return(list(pA_t1 = p_A[[1]], pA_t2 = p_A[[2]]))
 }
 
-
-
-
-############################################################################################
+#---------------------------------- simulation ----------------------------------
+# O=(w1, w2, L0, A1, L1, C1, A2, L2, C2, Y)
+source(file = "sim_data.R") 
 iter = 500
 IF_sim = sum_fit = NULL
 ests_msm = sds = sds_c = beta_coverage = beta_c_coverage = matrix(NA, nrow = iter, ncol = 4)
-# seeds = sample(1:5000, 1000)
-load(file = "./Rda/seeds1000")
-# source("./test/true_coef")
+seeds = sample(1:5000, iter)
+
+a_sim2 = matrix(c(1,1,0,1,0,0), nrow = 3, byrow = TRUE)
 
 for (j in 1:iter) {
   
   N= 5000; study_n = 100
   datl1 = datal(seed=seeds[j], N=N, study_n=study_n)
-  # datl1 = datal(seed=1256, N=N, study_n=study_n)
   id = datl1$ind_id
   long_dat = longData(data = datl1)
-  
   
   pA_allt = NULL; 
   for (regim in 1:3 ) { pA_allt[[regim]] = pA(r=regim, long_dat = long_dat)}
@@ -204,13 +68,10 @@ for (j in 1:iter) {
   weights_sim_allr <- NULL
   
   for (t in 1:3) {
-    
     weights_sim_allr[[t]] <- NULL; ws = NULL
-    
     if (t ==1) {
       for (r in 1:3) {
         w = 1/(sapply(pA_allt[[r]]$pA_t1, as.numeric))
-        # w = rep(1, long_n)
         ws = c(ws, w)
       }
     } else if (t ==3) {
@@ -226,12 +87,8 @@ for (j in 1:iter) {
         ws = c(ws, w)
       }
     }
-    
-    # ws = .bound(ws, quantile(ws, c(0.01, 0.99)))
     weights_sim_allr[[t]] = ws
   }
-  
-  
   
   #######################################################################################################
   
@@ -248,19 +105,11 @@ for (j in 1:iter) {
     
     subQ <- which(long_dat$t==t-1 & long_dat$C==0)
     model = glm.fit(y = long_dat[subQ,]$Y, x = cbind(1, long_dat[subQ, col_Q], long_dat$w2[subQ]* long_dat$cumA[subQ]) ) 
-    
-    # Q_l[[r]] = plogis(as.matrix(cbind(1, long_dat[,5:8], A=rep(a_sim2[r,(t-1)],long_n), cumA_minus = rep(sum(a_sim2[r,1:(t-2)]), long_n))) %*% coef(model))
     Q_l[[r]] = as.matrix(cbind(1, long_dat[, 5:8], cumA = rep(sum(a_sim2[r,1:(t-1)]), long_n), long_dat$w2*rep(sum(a_sim2[r,1:(t-1)]), long_n))) %*% coef(model)
     
   }
   
   Ql_3r = unlist(Q_l) 
-  
-  # mean(Ql_3r[which(stacklong_dat$t==t-1)])
-  # mean(Ql_3r[which(stacklong_dat$t==t-1)][1:(12792/3)])
-  # mean(Ql_3r[which(stacklong_dat$t==t-1)][(12792/3+1):(2*12792/3)])
-  # mean(Ql_3r[which(stacklong_dat$t==t-1)][(2*12792/3+1):(12792)])
-
   
   a = min(c(long_dat$Y, Ql_3r), na.rm = TRUE); b = max(c(long_dat$Y, Ql_3r), na.rm = TRUE)
   
@@ -269,8 +118,6 @@ for (j in 1:iter) {
   Ql_3r_scaled = .bound(Ql_3r_scaled, c(bound, 1-bound))
   Y_scaled = (long_dat$Y-a)/(b-a)
   Y_scaled = .bound(Y_scaled, c(bound, 1-bound))
-  
-  
   # ------------------------ update Q3; working model (w2 + cumA + w2:cumA)
   doffset = qlogis(Ql_3r_scaled)
   coe_cum3 = rep(2:0, each = long_n)
@@ -286,10 +133,7 @@ for (j in 1:iter) {
     subs = length(rsub)*(r-1)+which(stacklong_dat[rsub,]$t==t-1 & stacklong_dat[rsub,]$C==0 & stacklong_dat[rsub,]$cumA == t-r)
     subjs = c(subjs, subs)
   }
-  
-    
     y = stacklong_dat[subjs,]$Y_scaled
-    # y = stacklong_dat[subjs,]$Y_scaled
     
     wc3 = matrix(cbind(1, stacklong_dat$w2, coe_cum3, stacklong_dat$w2*coe_cum3), nrow = stacklong_n) 
     modelu <- glm(y ~ -1 + wc3[subjs,], offset = doffset[subjs], weights = weights_sim_allr[[t]][subjs], family = quasibinomial()) 
@@ -297,19 +141,9 @@ for (j in 1:iter) {
     estQ_sim = rep(NA, stacklong_n)
     estQ_sim[which(stacklong_dat$t==t-1)] <- plogis( doffset[which(stacklong_dat$t==t-1)] +
                                                        wc3[which(stacklong_dat$t==t-1),] %*% coef(modelu) )
-
-    # mean(estQ_sim[which(stacklong_dat$t==t-1)])*(b-a)+a
-    # mean(estQ_sim[which(stacklong_dat$t==t-1)][1:(12792/3)])*(b-a)+a
-    # mean(estQ_sim[which(stacklong_dat$t==t-1)][(12792/3+1):(2*12792/3)])*(b-a)+a
-    # mean(estQ_sim[which(stacklong_dat$t==t-1)][(2*12792/31):(12792)])*(b-a)+a
-    
-  
-  # ---------------------  compute EIF
     Dds= rep(0, stacklong_n)
     Dds[subjs] = (stacklong_dat[subjs,]$Y_scaled - estQ_sim[subjs]) * weights_sim_allr[[t]][subjs] 
     mean(Dds, na.rm = TRUE)
-  
-  
   
   #------------------------------------------ t = 2 --------------------------------------------
   t = 2
@@ -319,7 +153,7 @@ for (j in 1:iter) {
     rsub = (1 + (r-1) * long_n) : (long_n +  (r-1) * long_n)
     
     Q_l[[r]] = rep(0, long_n)
-    col_Q = c(5:8, 14)# "w1" ,"w2" , "L" , "L_minus" , "cumA+" 
+    col_Q = c(5:8, 14)
     
     subQ <- which(long_dat$t==t-1 & long_dat$C==0)
     model = glm.fit(y = estQ_sim[rsub][which(long_dat$t==t)], x = cbind(1, long_dat[subQ, col_Q]), family=quasibinomial() )
@@ -328,14 +162,6 @@ for (j in 1:iter) {
   }
   
   Ql_2r = unlist(Q_l) 
-  
-  # mean(Ql_2r[which(stacklong_dat$t==t-1)])*(b-a)+a
-  # mean(Ql_2r[which(stacklong_dat$t==t-1)][1:(12792/3)])*(b-a)+a
-  # mean(Ql_2r[which(stacklong_dat$t==t-1)][(12792/3+1):(2*12792/3)])*(b-a)+a
-  # mean(Ql_2r[which(stacklong_dat$t==t-1)][(2*12792/3+1):(12792)])*(b-a)+a
-  
-  # ------------------------ update Q2; 
-  
   subjs = subys = NULL
   for ( r in 1:3) {
     rsub = (1 + (r-1) * long_n) : (long_n +  (r-1) * long_n) 
@@ -356,18 +182,8 @@ for (j in 1:iter) {
                                                      wc2[which(stacklong_dat$t==t-1),]%*% coef(modelu) )
  
   mean(estQ_sim[which(stacklong_dat$t==t-1)])*(b-a)+a
- 
-  # mean(estQ_sim[which(stacklong_dat$t==t-1)])*(b-a)+a
-  # mean(estQ_sim[which(stacklong_dat$t==t-1)][1:(12792/3)])*(b-a)+a
-  # mean(estQ_sim[which(stacklong_dat$t==t-1)][(12792/3+1):(2*12792/3)])*(b-a)+a
-  # mean(estQ_sim[which(stacklong_dat$t==t-1)][(2*12792/31):(12792)])*(b-a)+a
-  
-  
-  # ---------------------  compute EIF
-  
   Dds[subjs] = (y - estQ_sim[subjs]) * weights_sim_allr[[t]][subjs] 
-  # mean(Dds)
-  
+ 
   #------------------------------------------ t = 1 --------------------------------------------
   t = 1
   Q_l <- NULL; 
@@ -387,26 +203,16 @@ for (j in 1:iter) {
   
   Ql_1r = unlist(Q_l) 
   
-  # mean(Ql_1r[which(stacklong_dat$t==t-1)])*(b-a)+a
-  # mean(Ql_1r[which(stacklong_dat$t==t-1)][1:(12792/3)])*(b-a)+a
-  # mean(Ql_1r[which(stacklong_dat$t==t-1)][(12792/3+1):(2*12792/3)])*(b-a)+a
-  # mean(Ql_1r[which(stacklong_dat$t==t-1)][(2*12792/3+1):(12792)])*(b-a)+a
-  
-  # ------------------------ update Q1; 
-  
   subjs = subys = NULL
   for ( r in 1:3) {
     rsub = (1 + (r-1) * long_n) : (long_n +  (r-1) * long_n) 
-    # subs = length(rsub)*(r-1)+which(stacklong_dat[rsub,]$t==t-1 & stacklong_dat[rsub,]$C==0 & stacklong_dat[rsub,]$cumA == sum(a_sim2[r,1:(t-1)]))
     subs = length(rsub)*(r-1)+which(stacklong_dat[rsub,]$t==t-1 & stacklong_dat[rsub,]$C==0 & stacklong_dat[rsub,]$cumA_pl == sum(a_sim2[r,1:(t)]))
     subjs = c(subjs, subs)
     
-    # suby = length(rsub)*(r-1)+which(stacklong_dat[rsub,]$t==t & stacklong_dat[rsub,]$cumA_minus == sum(a_sim2[r,1:(t-1)]))
     suby = length(rsub)*(r-1)+which(stacklong_dat[rsub,]$t==t & stacklong_dat[rsub,]$cumA == sum(a_sim2[r,1:(t)]))
     subys = c(subys, suby)
   }
   
-  # y = .bound(estQ_sim2[which(stacklong_dat$t==t)], c(bound, 1-bound))
   y = estQ_sim[subys]
   doffset = qlogis(Ql_1r)
   
@@ -417,33 +223,16 @@ for (j in 1:iter) {
                                                      wc1[which(stacklong_dat$t==t-1),]%*% coef(modelu) )
   
   mean(estQ_sim[which(stacklong_dat$t==t-1)])*(b-a)+a
-  
-  # mean(estQ_sim[which(stacklong_dat$t==t-1)])*(b-a)+a
-  # mean(estQ_sim[which(stacklong_dat$t==t-1)][1:(12792/3)])*(b-a)+a
-  # mean(estQ_sim[which(stacklong_dat$t==t-1)][(12792/3+1):(2*12792/3)])*(b-a)+a
-  # mean(estQ_sim[which(stacklong_dat$t==t-1)][(2*12792/3+1):(12792)])*(b-a)+a
-  
-  
-  # ---------------------  compute EIF
   Dds[subjs] = (y - estQ_sim[subjs]) * weights_sim_allr[[t]][subjs] 
-  # mean(Dds)
   
   #------------------------------ pooled ltmle for MSM ------------------------------------
   totalq = estQ_sim[which(stacklong_dat$t==0)]
   length(totalq); mean(totalq)*(b-a)+a
   
-  # mean(totalq[1:5000])*(b-a)+a
-  # mean(totalq[5001:10000])*(b-a)+a
-  # mean(totalq[10001:15000])*(b-a)+a
-  
-  #------------ construct cumlative expo for all r
-  
-  msmA = coe_cum3[which(stacklong_dat$t==0)] # length(msmA) = 3*N
+  msmA = coe_cum3[which(stacklong_dat$t==0)] 
   covmat_sim = cbind(intercep = 1, w2=stacklong_dat[which(stacklong_dat$t==0),]$w2, cumA=msmA,
                      w2_cumA = stacklong_dat[which(stacklong_dat$t==0),]$w2 * msmA)
-  # dim(covmat_sim)
-  
-  totalq_orig = totalq*(b-a)+a
+   totalq_orig = totalq*(b-a)+a
   fit_sim = glm.fit(y = totalq_orig, x = covmat_sim)
   
   ests_msm[j,] = as.vector(coef(fit_sim))
@@ -457,9 +246,7 @@ for (j in 1:iter) {
     ds = sapply(1: length(id), function(x) sum(Dds[rsub][which(stacklong_dat[rsub,]$id == id[x])]))
     ddss = c(ddss, ds)
   }
-  # summary(ddss); length(ddss)
-  
-  
+ 
   #------------------- IF(a[r,])  on  DD
   
   fitt_sim = glm.fit(y = totalq, x = covmat_sim)
@@ -469,8 +256,7 @@ for (j in 1:iter) {
   sumDif = covmat_sim*(diff1_sim+diff2_sim)
   sumD = sumDif[1:N,]+sumDif[(N+1):(2*N),]+sumDif[(2*N+1):(3*N),]
   
-  
-  # ---- normlization matrix (sum_r vv'/n)^(-1)
+   # ---- normlization matrix (sum_r vv'/n)^(-1)
   covmat_p1 = t(covmat_sim[1:N,]) %*% covmat_sim[1:N,]
   covmat_p2 = t(covmat_sim[(N+1):(2*N),]) %*% covmat_sim[(N+1):(2*N),]
   covmat_p3 = t(covmat_sim[(2*N+1):(3*N),]) %*% covmat_sim[(2*N+1):(3*N),]
@@ -479,7 +265,6 @@ for (j in 1:iter) {
   
   IFbeta_sim <- (sumD) %*% norm_sim
   IF_sim[[j]] = IFbeta_sim
-  # summary(IFbeta_sim); dim(IFbeta_sim)
   
   # ------ pooled sd 
   sd_coef_sim <- sqrt(colSums(IFbeta_sim^2)/(length(id))^2)*(b-a)
@@ -504,60 +289,24 @@ for (j in 1:iter) {
  
 }
 
-# save(ests_msm, IF_sim, sds, sds_c, sum_fit, file = "./Rda/simu1_500") # w2 ~ Bern(p=0.5+0.3s)
-# save(ests_msm, IF_sim, sds, sds_c, sum_fit, resu2, file = "./Rda/simu2_500") # w2 ~ Bern(p=0.5+0.8s)  !!!!! num of studies 50
-# save(ests_msm, IF_sim, sds, sds_c, sum_fit, file = "./Rda/simu2_500_new") # w2 ~ Bern(p=0.5+0.8s)  !!!!! num of studies 20, redo on Jan-16-2023
-# save(ests_msm, IF_sim, sds, sds_c, sum_fit, resu3, file = "./Rda/simu2_279") # w2 ~ Bern(p=0.5+0.8s)  num of studies 20,  ests_msm[1:279,]
-# load(file = "./Rda/simu2_500") 
-
 est_coefs = round(colMeans(ests_msm),4)
-# intercep     w2      cumA   w2_cumA 
-#  0.3372   1.0048   0.5688   0.2224 
-
 sd_mc = round(sapply(1:4, function(x) sd(ests_msm[,x])),4)
-# intercep   w2      cumA   w2_cumA 
-# 0.1026   0.1132   0.0526   0.0582
-
 sd_unD = round(colMeans(sds),4)
-# intercep       w2     cumA  w2_cumA 
-#  0.0807    0.0964    0.0004   0.0006 
 sd_c_unD = round(colMeans(sds_c),4)
-# intercep       w2     cumA  w2_cumA 
-#  0.1000    0.0944    0.0011   0.0018 
-# sqrt(colSums(sds^2)/300)
-# sqrt(colSums(sds_c^2)/300)
 beta_cov = colSums(beta_coverage)/iter
 beta_c_cov = colSums(beta_c_coverage)/iter
-# ci_L<- ests_msm-1.96*sds
-# ci_H <- ests_msm+1.96*sds
-# beta_cov = sapply(1:4, function(x) sum(tru_beta[x]>=ci_L[,x] & tru_beta[x]<=ci_H[,x])/iter)
-# 
-# ci_c_L<- ests_msm-1.96*sds_c
-# ci_c_H <- ests_msm+1.96*sds_c
-# beta_c_cov = sapply(1:4, function(x) sum(tru_beta[x]>=ci_c_L[,x] & tru_beta[x]<=ci_c_H[,x])/iter)
 
-# source(file = "./test/sim_true_coef.R")
-load(file = "./Rda/true_coeff_itt&at")
+# source(file = "sim_true_coef.R")
 tru_beta = colMeans(true_coeff_itt)
-resu = round(rbind(tru_beta, est_coefs, sd_mc, sd_unD, sd_c_unD, beta_cov, beta_c_cov),2) # w2 ~ Bern(p=0.5+0.8s)
-#        intercep  w2  cumA w2_cumA
-# tru_beta   0.06 1.95 0.59 0.20
-# est_coefs  0.07 1.94 0.59 0.20
-# sd_mc      0.22 0.30 0.10 0.17
-# sd_unD     0.15 0.32 0.09 0.19
-# sd_c_unD   0.21 0.34 0.09 0.18
-# beta_cov   0.79 0.97 0.96 0.98
-# beta_c_cov 0.94 0.97 0.95 0.97
-
-# resu1 = round(rbind(tru_beta, est_coefs, sd_mc, sd_unD, sd_c_unD, beta_cov, beta_c_cov),2) # w2 ~ Bern(p=0.5+0.3s)
+resu = round(rbind(tru_beta, est_coefs, sd_mc, sd_unD, sd_c_unD, beta_cov, beta_c_cov),2) 
 #        intercep  w2  cumA w2_cumA
 # tru_beta   0.06 1.95 0.59 0.20
 # est_coefs  0.07 1.95 0.59 0.20
 # sd_mc      0.17 0.26 0.08 0.16
 # sd_unD     0.14 0.30 0.08 0.18
 # sd_c_unD   0.17 0.31 0.08 0.17
-# beta_cov   0.87 0.98 0.96 0.98
-# beta_c_cov 0.96 0.98 0.96 0.98
+# beta_cov   0.85 0.97 0.97 0.97
+# beta_c_cov 0.94 0.97 0.96 0.97
 
 
 
