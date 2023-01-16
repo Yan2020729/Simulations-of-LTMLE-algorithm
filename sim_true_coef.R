@@ -16,7 +16,6 @@ true_r <- function(seed, N, study_n, r, study)  {
   w2<-rbinom(N, 1, plogis(0.5+0.8*s))
   L0 = rnorm(N, mean=0.2+0.2*w1+0.3*w2, sd=0.7)
   
-  # t1 = rep(1, N)
   if (study == "at") {
     if (r == 1 ) A1 = A2 = rep(1, N) else if (r == 2) {A1 = rep(0, N); A2 = rep(1,N)
     } else if (r == 3) {A1 = A2 = rep(0, N)} else if (r==4) {A1 = rep(1, N); A2 = rep(0,N)} else stop
@@ -80,7 +79,6 @@ true_coeff_at = tru_coeff(tru_iter=n_iter, study="at")
 colMeans(true_coeff_at)
 # 0.08872904 1.94911048 0.58750000 0.20000000
 
-# save(true_coeff_itt, true_coeff_at, file = "./Rda/true_coeff_itt&at") 
 
 
 
