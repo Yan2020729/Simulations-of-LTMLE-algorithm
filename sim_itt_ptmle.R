@@ -307,9 +307,3 @@ resu = round(rbind(tru_beta, est_coefs, sd_mc, sd_unD, sd_c_unD, beta_cov, beta_
 # sd_c_unD   0.17 0.31 0.08 0.17
 # beta_cov   0.85 0.97 0.97 0.97
 # beta_c_cov 0.94 0.97 0.96 0.97
-
-
-
-library(xtable)
-xtable(resu, digits = 2)
-
