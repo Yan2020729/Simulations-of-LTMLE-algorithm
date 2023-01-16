@@ -46,9 +46,9 @@ a_sim2 = matrix(c(1,1,0,1,0,0), nrow = 3, byrow = TRUE)
 for (j in 1:iter) {
   
   N= 5000; study_n = 100
-  datl1 = datal(seed=seeds[j], N=N, study_n=study_n)
+  datl1 = datal(seed=seeds[j], N=N, study_n=study_n, study = "itt")
   id = datl1$ind_id
-  long_dat = longData(data = datl1)
+  long_dat = longData(data = datl1, study = "itt")
   
   pA_allt = NULL; 
   for (regim in 1:3 ) { pA_allt[[regim]] = pA(r=regim, long_dat = long_dat)}
